@@ -3,17 +3,10 @@
 
 Funcionalidade: Testes de API
   
-  @CriarEmpregado
-  Cenario: Criar um empregado
-    Dado Realizar response create
-    Então Gerar relatorio "Criar registro" "create"
-    
-  @ConsultaEmpregado
-  Cenario: Consultar empregado criado
-    Dado Realizar response consulta
-    Então Gerar relatorio "Consultar registro" "consulta"
-    
-  @DeletaEmpregado
-  Cenario: Deletar empregado criado
-    Dado Realizar response delete
-    Então Gerar relatorio "Deletar registro" "delete"
+  @Pet
+  Cenario: Realizar a venda de um dog
+    Dado A criação de um usuario chamado "Maria""Assunção"
+    E A criação de um pet chamado "Brutus" do tipo "dog"
+    Quando Realizar a venda do pet para o usuario
+    E Mudar o status da ordem de venda para "delivered"
+    Então Consultar se a ordem gerada esta correta

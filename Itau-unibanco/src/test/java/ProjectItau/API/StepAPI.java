@@ -1,6 +1,9 @@
 package ProjectItau.API;
 
 import cucumber.api.java.pt.Dado;
+import cucumber.api.java.pt.E;
+import cucumber.api.java.pt.Então;
+import cucumber.api.java.pt.Quando;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 
@@ -11,61 +14,141 @@ public class StepAPI {
 	public String response;
 
 	
-	@Dado("^Realizar response create$")
-    public void realizar_response_create() throws Throwable {
+	@Dado("A criação de um usuario chamado {string}{string}")
+    public void criar_usuario(String firstname, String lastname) throws Throwable {
      try {
-		RestAssured.baseURI = "https://dummy.restapiexample.com/api/v1/create";
+		RestAssured.baseURI = "https://petstore.swagger.io/v2/pet";
       
       response = given().log().all()
     		  .contentType("application/json")
-    		  .body("	{\r\n" + 
-      		"        \"name\":\"test\",\r\n" + 
-      		"        \"salary\":\"3200\",\r\n" + 
-      		"        \"age\":\"23\"\r\n" + 
-      		"    }")
+    		  .body("{\n"
+    		  		+ "    \"id\": 1,\n"
+    		  		+ "    \"username\": \"<string>\",\n"
+    		  		+ "    \"firstName\": \""+firstname+"\",\n"
+    		  		+ "    \"lastName\": \""+lastname+"\",\n"
+    		  		+ "    \"email\": \"teste@teste.com\",\n"
+    		  		+ "    \"password\": \"teste\",\n"
+    		  		+ "    \"phone\": \"<string>\",\n"
+    		  		+ "    \"userStatus\": 0\n"
+    		  		+ "    }")
       .when().post()
       .then().assertThat().statusCode(200).extract().response().asString();
       System.out.println(response);
       
-      JsonPath js = new JsonPath(response);
-      String id = js.getString("data.id");
-      
-      System.out.println(id);
      }finally {
     	 RestAssured.reset();
      }
     }
 	
-	@Dado("^Realizar response consulta$")
-    public void realizar_response_consulta() throws Throwable {
-     try {
-    	 
-		RestAssured.baseURI = "http://dummy.restapiexample.com/api/v1/employee/";
-      
-      response = given().log().all()
-    		  .contentType("application/json")
-      .when().get()
-      .then().assertThat().statusCode(200).extract().response().asString();
-      System.out.println(response);
-    
-     }finally {
-    	 RestAssured.reset();
-     }
-    }
+	@E("A criação de um pet chamado {string} do tipo {string}")
+	public void criar_pet(String nomePet, String tipoPet) {
+		 try {
+				RestAssured.baseURI = "https://petstore.swagger.io/v2/user";
+		      
+		      response = given().log().all()
+		    		  .contentType("application/json")
+		    		  .body("{\n"
+		    		  		+ "    \"name\": \""+nomePet+"\",\n"
+		    		  		+ "    \"photoUrls\": [\n"
+		    		  		+ "        \"<string>\",\n"
+		    		  		+ "        \"<string>\"\n"
+		    		  		+ "    ],\n"
+		    		  		+ "    \"id\": 1,\n"
+		    		  		+ "    \"category\": {\n"
+		    		  		+ "        \"id\": 0,\n"
+		    		  		+ "        \"name\": \""+tipoPet+"\"\n"
+		    		  		+ "    },\n"
+		    		  		+ "    \"tags\": [\n"
+		    		  		+ "        {\n"
+		    		  		+ "            \"id\": 0,\n"
+		    		  		+ "            \"name\": \"<string>\"\n"
+		    		  		+ "        },\n"
+		    		  		+ "        {\n"
+		    		  		+ "            \"id\": 0,\n"
+		    		  		+ "            \"name\": \"<string>\"\n"
+		    		  		+ "        }\n"
+		    		  		+ "    ],\n"
+		    		  		+ "    \"status\": \"available\"\n"
+		    		  		+ "}")
+		      .when().post()
+		      .then().assertThat().statusCode(200).extract().response().asString();
+		      System.out.println(response);
+		      
+		     }finally {
+		    	 RestAssured.reset();
+		     }
+	}
+
+	@Quando("Realizar a venda do pet para o usuario")
+	public void realizar_venda_do_pet() {
+		try {
+			RestAssured.baseURI = "https://petstore.swagger.io/v2/store/order";
+	      
+	      response = given().log().all()
+	    		  .contentType("application/json")
+	    		  .body("{\n"
+	    		  		+ "    \"id\": 1,\n"
+	    		  		+ "    \"petId\": 1,\n"
+	    		  		+ "    \"quantity\": 0,\n"
+	    		  		+ "    \"shipDate\": \"2021-05-03T20:17:29.569Z\",\n"
+	    		  		+ "    \"status\": \"placed\",\n"
+	    		  		+ "    \"complete\": true\n"
+	    		  		+ "}")
+	      .when().post()
+	      .then().assertThat().statusCode(200).extract().response().asString();
+	      System.out.println(response);
+	      
+	     }finally {
+	    	 RestAssured.reset();
+	     }
+	}
 	
-	@Dado("^Realizar response delete$")
-    public void realizar_response_delete() throws Throwable {
-     try { 	 
-		RestAssured.baseURI = "http://dummy.restapiexample.com/public/api/v1/delete/";
-      
-      response = given().log().all()
-    		  .contentType("application/json")
-      .when().delete()
-      .then().assertThat().statusCode(200).extract().response().asString();
-      System.out.println(response);
-    
-     }finally {
-    	 RestAssured.reset();
-     }
-    }
+	@E("Mudar o status da ordem de venda para {string}")
+	public void alterar_status(String novoStatus) {
+		try {
+			RestAssured.baseURI = "https://petstore.swagger.io/v2/store/order";
+	      
+	      response = given().log().all()
+	    		  .contentType("application/json")
+	    		  .body("{\n"
+	    		  		+ "    \"id\": 1,\n"
+	    		  		+ "    \"petId\": 1,\n"
+	    		  		+ "    \"quantity\": 0,\n"
+	    		  		+ "    \"shipDate\": \"2021-05-03T20:17:29.569Z\",\n"
+	    		  		+ "    \"status\": \""+novoStatus+"\",\n"
+	    		  		+ "    \"complete\": true\n"
+	    		  		+ "}")
+	      .when().post()
+	      .then().assertThat().statusCode(200).extract().response().asString();
+	      System.out.println(response);
+	      
+	     }finally {
+	    	 RestAssured.reset();
+	     }
+	}
+	
+	@Então("Consultar se a ordem gerada esta correta")
+	public void consultar_ordem_gerada() throws Exception {
+		try {
+	      
+	      response = given().pathParam("orderId", "1").log().all()
+	    		  .contentType("application/json")
+	      .when().get("https://petstore.swagger.io/v2/store/order/{orderId}")
+	      .then().assertThat().statusCode(200).extract().response().asString();
+	      System.out.println(response);
+	      
+	      JsonPath js = new JsonPath(response);
+	      String id = js.getString("status");
+	      
+	      if (id.equals("delivered")) {
+			System.out.println("Mensagem correta!!");
+		}else {
+			throw new Exception("status não correto");
+		}
+	      
+	     }finally {
+	    	 RestAssured.reset();
+	     }
+	}
+	
 }
