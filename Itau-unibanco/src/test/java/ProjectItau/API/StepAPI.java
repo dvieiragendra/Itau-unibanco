@@ -12,17 +12,19 @@ import static io.restassured.RestAssured.given;
 public class StepAPI {
 
 	public String response;
+	public String idPet;
+	public String idUser;
 
 	
-	@Dado("A criação de um usuario chamado {string}{string}")
-    public void criar_usuario(String firstname, String lastname) throws Throwable {
+	@Dado("A criação de um usuario chamado {string}{string} com id {string}")
+    public void criar_usuario(String firstname, String lastname, String id) throws Throwable {
      try {
 		RestAssured.baseURI = "https://petstore.swagger.io/v2/pet";
       
       response = given().log().all()
     		  .contentType("application/json")
     		  .body("{\n"
-    		  		+ "    \"id\": 1,\n"
+    		  		+ "    \"id\": "+id+",\n"
     		  		+ "    \"username\": \"<string>\",\n"
     		  		+ "    \"firstName\": \""+firstname+"\",\n"
     		  		+ "    \"lastName\": \""+lastname+"\",\n"
@@ -33,6 +35,7 @@ public class StepAPI {
     		  		+ "    }")
       .when().post()
       .then().assertThat().statusCode(200).extract().response().asString();
+      this.idUser = id;
       System.out.println(response);
       
      }finally {
@@ -40,8 +43,8 @@ public class StepAPI {
      }
     }
 	
-	@E("A criação de um pet chamado {string} do tipo {string}")
-	public void criar_pet(String nomePet, String tipoPet) {
+	@E("A criação de um pet chamado {string} do tipo {string} com id {string}")
+	public void criar_pet(String nomePet, String tipoPet, String id) {
 		 try {
 				RestAssured.baseURI = "https://petstore.swagger.io/v2/user";
 		      
@@ -53,7 +56,7 @@ public class StepAPI {
 		    		  		+ "        \"<string>\",\n"
 		    		  		+ "        \"<string>\"\n"
 		    		  		+ "    ],\n"
-		    		  		+ "    \"id\": 1,\n"
+		    		  		+ "    \"id\": "+id+",\n"
 		    		  		+ "    \"category\": {\n"
 		    		  		+ "        \"id\": 0,\n"
 		    		  		+ "        \"name\": \""+tipoPet+"\"\n"
@@ -72,6 +75,7 @@ public class StepAPI {
 		    		  		+ "}")
 		      .when().post()
 		      .then().assertThat().statusCode(200).extract().response().asString();
+		      this.idPet = id;
 		      System.out.println(response);
 		      
 		     }finally {
@@ -87,8 +91,8 @@ public class StepAPI {
 	      response = given().log().all()
 	    		  .contentType("application/json")
 	    		  .body("{\n"
-	    		  		+ "    \"id\": 1,\n"
-	    		  		+ "    \"petId\": 1,\n"
+	    		  		+ "    \"id\": "+this.idUser+",\n"
+	    		  		+ "    \"petId\": "+this.idPet+",\n"
 	    		  		+ "    \"quantity\": 0,\n"
 	    		  		+ "    \"shipDate\": \"2021-05-03T20:17:29.569Z\",\n"
 	    		  		+ "    \"status\": \"placed\",\n"
@@ -111,8 +115,8 @@ public class StepAPI {
 	      response = given().log().all()
 	    		  .contentType("application/json")
 	    		  .body("{\n"
-	    		  		+ "    \"id\": 1,\n"
-	    		  		+ "    \"petId\": 1,\n"
+	    		  		+ "    \"id\": "+this.idUser+",\n"
+	    		  		+ "    \"petId\": "+this.idPet+",\n"
 	    		  		+ "    \"quantity\": 0,\n"
 	    		  		+ "    \"shipDate\": \"2021-05-03T20:17:29.569Z\",\n"
 	    		  		+ "    \"status\": \""+novoStatus+"\",\n"
@@ -131,7 +135,7 @@ public class StepAPI {
 	public void consultar_ordem_gerada() throws Exception {
 		try {
 	      
-	      response = given().pathParam("orderId", "1").log().all()
+	      response = given().pathParam("orderId", this.idUser).log().all()
 	    		  .contentType("application/json")
 	      .when().get("https://petstore.swagger.io/v2/store/order/{orderId}")
 	      .then().assertThat().statusCode(200).extract().response().asString();
